@@ -6,6 +6,7 @@ import (
 	"blog-back/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func Register(c *gin.Context) {
@@ -84,17 +85,21 @@ func Createpost(c *gin.Context) {
 func Getposts(c *gin.Context) {
 
 	var posts []models.Post
-	var post models.Post
-	_ = c.ShouldBind(&post)
-	if post.Title == "" {
-		dao.DB.Find(&posts)
+	Title := c.Query("Title")
+	Page := c.Query("Page")
+	PageNum, _ := strconv.Atoi(Page)
+	Pagesize := c.Query("PageSize")
+	PagesizeNum, _ := strconv.Atoi(Pagesize)
+
+	if Title == "" {
+		dao.DB.Offset((PageNum - 1) * PagesizeNum).Limit(PagesizeNum).Find(&posts)
 		c.JSON(http.StatusOK, gin.H{
 			"code": http.StatusOK,
 			"data": posts,
 		})
 		return
 	} else {
-		err := dao.DB.Where("Title=?", post.Title).Find(&posts).Error
+		err := dao.DB.Where("Title=?", Title).Find(&posts).Error
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"code":    http.StatusInternalServerError,
@@ -141,4 +146,28 @@ func Deletepost(c *gin.Context) {
 		"code": http.StatusOK,
 	})
 
+}
+func Getpostnumber(c *gin.Context) {
+	Title := c.Query("Title")
+	var posts []models.Post
+	if Title == "" {
+		dao.DB.Find(&posts)
+		c.JSON(http.StatusOK, gin.H{
+			"code": http.StatusOK,
+			"data": posts,
+		})
+		return
+	} else {
+		err := dao.DB.Where("Title=?", Title).Find(&posts).Error
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"code": http.StatusInternalServerError,
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"code": http.StatusOK,
+			"data": posts,
+		})
+	}
 }

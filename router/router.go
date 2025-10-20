@@ -15,6 +15,7 @@ func Init() {
 	api.GET("/post/getposts", controller.Getposts)
 	api.PUT("post/editpost", controller.Editpost)
 	api.DELETE("post/deletepost", controller.Deletepost)
+	api.GET("/post/getpostnumber", controller.Getpostnumber)
 
 	r.Run(":8081")
 
