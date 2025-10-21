@@ -48,6 +48,7 @@ func Login(c *gin.Context) {
 
 }
 func Edituser(c *gin.Context) {
+
 	id := c.Param("id")
 	user := new(models.User)
 	err := dao.DB.First(&user, id).Error
